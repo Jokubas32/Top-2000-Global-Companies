@@ -105,34 +105,19 @@ def gen_seaborn_charts(data):
     st.pyplot(fig2)
 
 def gen_map(data):
-    required_cols = ['Company', 'Sales ($billion)', 'Profits ($billion)', 'Market Value ($billion)']
-    
-    # Check latitude and longitude columns; add default if missing
-    if 'Latitude_final' not in data.columns or 'Longitude_final' not in data.columns:
-        st.warning("Latitude_final and/or Longitude_final columns missing — adding default coordinates (0,0).")
-        data['Latitude_final'] = 0
-        data['Longitude_final'] = 0
+    # Referenced a video and ChatGPT
+    st.subheader("Interactive Company Map")
+    st.info("Hover over the dots to see company details.")
 
-    # Check if other required columns exist
-    missing_cols = [col for col in required_cols if col not in data.columns]
-    if missing_cols:
-        st.error(f"Missing required columns in dataset: {', '.join(missing_cols)}")
-        return
+    # Drop rows with missing coordinates and key company data
 
-    # Drop rows with missing values in required columns (including lat/lon now added if missing)
-    companies_with_coords = data.dropna(subset=['Latitude_final', 'Longitude_final'] + required_cols)
+    companies_with_coords = data.dropna(subset=['Latitude_final', 'Longitude_final', 'Company', 'Sales ($billion)', 'Profits ($billion)', 'Market Value ($billion)'])
 
-    # Create the map
-    m = folium.Map(location=[20, 0], zoom_start=2)
+    # Calculate the average latitude and longitude for centering the map
+    avg_lat = companies_with_coords['Latitude_final'].mean()
+    avg_lon = companies_with_coords['Longitude_final'].mean()
 
-    # Add markers
-    for _, row in companies_with_coords.iterrows():
-        folium.Marker(
-            location=[row['Latitude_final'], row['Longitude_final']],
-            popup=row['Company']
-        ).add_to(m)
-
-    st_folium(m, width=700)
+    m = folium.Map(location=[avg_lat, avg_lon], zoom_start=2)  # Create map centered on average location
 
     # Add markers to the map for each company
     for company_index, company_details in companies_with_coords.iterrows():
@@ -162,7 +147,6 @@ def gen_map(data):
         ).add_to(m)
 
     st_folium(m, width=700, height=500)
-
 def main():
     st.set_page_config(page_title="Global Companies Dashboard", layout="centered")
     st.sidebar.title("Navigation")
