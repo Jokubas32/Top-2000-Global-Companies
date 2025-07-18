@@ -105,19 +105,29 @@ def gen_seaborn_charts(data):
     st.pyplot(fig2)
 
 def gen_map(data):
-    # Referenced a video and ChatGPT
-    st.subheader("Interactive Company Map")
-    st.info("Hover over the dots to see company details.")
+    # Required columns
+    required_cols = ['Latitude_final', 'Longitude_final', 'Company', 
+                     'Sales ($billion)', 'Profits ($billion)', 'Market Value ($billion)']
 
-    # Drop rows with missing coordinates and key company data
-    st.write("Columns in DataFrame:", data.columns.tolist())
-    companies_with_coords = data.dropna(subset=['Latitude_final', 'Longitude_final', 'Company', 'Sales ($billion)', 'Profits ($billion)', 'Market Value ($billion)'])
+    # Check if all required columns exist
+    missing_cols = [col for col in required_cols if col not in data.columns]
+    if missing_cols:
+        st.error(f"Missing required columns in dataset: {', '.join(missing_cols)}")
+        return
 
-    # Calculate the average latitude and longitude for centering the map
-    avg_lat = companies_with_coords['Latitude_final'].mean()
-    avg_lon = companies_with_coords['Longitude_final'].mean()
+    # Drop rows with missing values in required columns
+    companies_with_coords = data.dropna(subset=required_cols)
 
-    m = folium.Map(location=[avg_lat, avg_lon], zoom_start=2)  # Create map centered on average location
+    # Create map
+    m = folium.Map(location=[20, 0], zoom_start=2)
+
+    for i, row in companies_with_coords.iterrows():
+        folium.Marker(
+            location=[row['Latitude_final'], row['Longitude_final']],
+            popup=row['Company']
+        ).add_to(m)
+
+    st_folium(m, width=700)
 
     # Add markers to the map for each company
     for company_index, company_details in companies_with_coords.iterrows():
