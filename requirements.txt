@@ -2,4 +2,6 @@ pandas
 matplotlib
 numpy
 streamlit
-pydeck
+folium
+st_folium
+seaborn
