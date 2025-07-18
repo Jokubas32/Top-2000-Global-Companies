@@ -3,5 +3,4 @@ matplotlib
 numpy
 streamlit
 folium
-st_folium
 seaborn
