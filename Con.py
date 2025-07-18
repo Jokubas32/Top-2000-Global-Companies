@@ -105,23 +105,28 @@ def gen_seaborn_charts(data):
     st.pyplot(fig2)
 
 def gen_map(data):
-    # Required columns
-    required_cols = ['Latitude_final', 'Longitude_final', 'Company', 
-                     'Sales ($billion)', 'Profits ($billion)', 'Market Value ($billion)']
+    required_cols = ['Company', 'Sales ($billion)', 'Profits ($billion)', 'Market Value ($billion)']
+    
+    # Check latitude and longitude columns; add default if missing
+    if 'Latitude_final' not in data.columns or 'Longitude_final' not in data.columns:
+        st.warning("Latitude_final and/or Longitude_final columns missing — adding default coordinates (0,0).")
+        data['Latitude_final'] = 0
+        data['Longitude_final'] = 0
 
-    # Check if all required columns exist
+    # Check if other required columns exist
     missing_cols = [col for col in required_cols if col not in data.columns]
     if missing_cols:
         st.error(f"Missing required columns in dataset: {', '.join(missing_cols)}")
         return
 
-    # Drop rows with missing values in required columns
-    companies_with_coords = data.dropna(subset=required_cols)
+    # Drop rows with missing values in required columns (including lat/lon now added if missing)
+    companies_with_coords = data.dropna(subset=['Latitude_final', 'Longitude_final'] + required_cols)
 
-    # Create map
+    # Create the map
     m = folium.Map(location=[20, 0], zoom_start=2)
 
-    for i, row in companies_with_coords.iterrows():
+    # Add markers
+    for _, row in companies_with_coords.iterrows():
         folium.Marker(
             location=[row['Latitude_final'], row['Longitude_final']],
             popup=row['Company']
