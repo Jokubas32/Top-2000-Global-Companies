@@ -17,10 +17,10 @@ import seaborn as sns #Stats
 
 # Went in for help at CIS Lab because it wasn't running at first
 def read_data():
-    path = "C:/Users/LENOVO/Documents/Final Project CS230/Final Project/"
-    data = pd.read_csv(path + "Top2000CompaniesGlobally.csv")
+    data = pd.read_csv("Top2000CompaniesGlobally.csv")  # No full path
     columns = data.columns.tolist()
-    return data, columns # two values
+    return data, columns
+
 
 # Show company count by continent on the dashboard
 def show_company_counts(data):
