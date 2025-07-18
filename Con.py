@@ -110,6 +110,7 @@ def gen_map(data):
     st.info("Hover over the dots to see company details.")
 
     # Drop rows with missing coordinates and key company data
+    st.write("Columns in DataFrame:", data.columns.tolist())
     companies_with_coords = data.dropna(subset=['Latitude_final', 'Longitude_final', 'Company', 'Sales ($billion)', 'Profits ($billion)', 'Market Value ($billion)'])
 
     # Calculate the average latitude and longitude for centering the map
